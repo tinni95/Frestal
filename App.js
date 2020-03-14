@@ -10,6 +10,7 @@ import Voice from '@react-native-community/voice';
 export default function App() {
   const [refresh, setRefresh] = useState(false)
   const [results, setResults] = useState([])
+  const [lock, setLock] = useState(false)
 
   useEffect(() => {
     Voice.start('it-IT').then(() => {
@@ -20,6 +21,7 @@ export default function App() {
       Voice.onSpeechVolumeChanged = () => console.log("changed");
       Voice.onSpeechEnd = () => console.log("end");
       Voice.onSpeechError = (e) => console.log(e);
+      setLock(false)
     })
   }, [refresh])
 
@@ -31,7 +33,7 @@ export default function App() {
   const restartRecognizer = async () => {
     console.log(refresh)
     try {
-      Voice.cancel().then(() => setRefresh(!refresh))
+      Voice.cancel().then(() => !lock ? setRefresh(!refresh) : null)
     } catch (e) {
       //eslint-disable-next-line
       console.log(e);
