@@ -1,5 +1,5 @@
 // App.js
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,52 +7,39 @@ import {
   Button,
 } from 'react-native';
 import Voice from '@react-native-community/voice';
-export default class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      recognized: '',
-      started: '',
-      results: [],
-    };
-    Voice.onSpeechStart = this.onSpeechStart.bind(this);
-    Voice.onSpeechRecognized = this.onSpeechRecognized.bind(this);
-    Voice.onSpeechResults = this.onSpeechResults.bind(this);
-    Voice.onSpeechPartialResults = () => null;
-    Voice.onSpeechVolumeChanged = () => null;
-    Voice.onSpeechEnd = () => null;
-    Voice.onSpeechError = () => null;
+export default function App() {
+  const [refresh, setRefresh] = useState(false)
+  const [results, setResults] = useState([])
+
+  useEffect(() => {
+    Voice.start('it-IT').then(() => {
+      Voice.onSpeechStart = () => console.log("start");
+      Voice.onSpeechRecognized = () => null;
+      Voice.onSpeechResults = e => onSpeechResults(e);
+      Voice.onSpeechPartialResults = () => null;
+      Voice.onSpeechVolumeChanged = () => console.log("changed");
+      Voice.onSpeechEnd = () => console.log("end");
+      Voice.onSpeechError = (e) => console.log(e);
+    })
+  }, [refresh])
+
+  const onSpeechResults = (e) => {
+    console.log(e.value)
+    restartRecognizer()
   }
 
-  componentWillUnmount() {
-    Voice.destroy().then(Voice.removeAllListeners);
-  }
+  const restartRecognizer = async () => {
+    console.log(refresh)
+    try {
+      Voice.cancel().then(() => setRefresh(!refresh))
+    } catch (e) {
+      //eslint-disable-next-line
+      console.log(e);
+    }
 
-  onSpeechStart(e) {
-    this.setState({
-      started: '√',
-    });
   };
 
-  onSpeechRecognized(e) {
-    this.setState({
-      recognized: '√',
-    });
-  };
-
-  onSpeechResults(e) {
-    this.setState({
-      results: e.value,
-    });
-  }
-
-  async _startRecognition(e) {
-
-    this.setState({
-      recognized: '',
-      started: '',
-      results: [],
-    });
+  const _startRecognition = async (e) => {
     try {
       await Voice.start('it-IT');
     } catch (e) {
@@ -60,21 +47,20 @@ export default class App extends React.Component {
     }
   }
 
-  render() {
-    return (
-      <View>
-        <Text style={styles.transcript}>
-          Transcript
+  return (
+    <View>
+      <Text style={styles.transcript}>
+        Transcript
         </Text>
-        {this.state.results.map((result, index) => <Text style={styles.transcript}> {result}</Text>
-        )}
-        <Button style={styles.transcript}
-          onPress={this._startRecognition.bind(this)}
-          title="Start"></Button>
-      </View>
-    );
-  }
+      {results.map((result, index) => <Text style={styles.transcript}> {result}</Text>
+      )}
+      <Button style={styles.transcript}
+        onPress={_startRecognition}
+        title="Start"></Button>
+    </View>
+  );
 }
+
 
 const styles = StyleSheet.create({
   transcript: {
