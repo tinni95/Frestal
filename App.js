@@ -20,6 +20,8 @@ export default class App extends React.Component {
     Voice.onSpeechResults = this.onSpeechResults.bind(this);
     Voice.onSpeechPartialResults = () => null;
     Voice.onSpeechVolumeChanged = () => null;
+    Voice.onSpeechEnd = () => null;
+    Voice.onSpeechError = () => null;
   }
 
   componentWillUnmount() {
@@ -52,7 +54,7 @@ export default class App extends React.Component {
       results: [],
     });
     try {
-      await Voice.start('en-US');
+      await Voice.start('it-IT');
     } catch (e) {
       console.error(e);
     }
