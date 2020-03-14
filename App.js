@@ -13,6 +13,7 @@ export default function App() {
   const [lock, setLock] = useState(false)
 
   useEffect(() => {
+    setLock(true)
     Voice.start('it-IT').then(() => {
       Voice.onSpeechStart = () => console.log("start");
       Voice.onSpeechRecognized = () => null;
@@ -27,6 +28,9 @@ export default function App() {
 
   const onSpeechResults = (e) => {
     console.log(e.value)
+    if (e.value.toString().endsWith("acca") && !results.includes(e.value.toString())) {
+      setResults([...results, e.value])
+    }
     restartRecognizer()
   }
 
@@ -52,9 +56,9 @@ export default function App() {
   return (
     <View>
       <Text style={styles.transcript}>
-        Transcript
+        Giacca
         </Text>
-      {results.map((result, index) => <Text style={styles.transcript}> {result}</Text>
+      {results.map((result, index) => <Text><Text style={styles.transcript}>{result}</Text></Text>
       )}
       <Button style={styles.transcript}
         onPress={_startRecognition}
